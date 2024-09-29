@@ -3,65 +3,105 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HTML Signature Editor</title>
+    <title>HTML Signature Editor v1.2</title>
 
     <!-- Prism.js für Syntax Highlighting -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.23.0/themes/prism.min.css" rel="stylesheet" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.23.0/prism.min.js"></script>
 
     <style>
+        /* Allgemeine Stile */
         html, body {
             height: 100%;
             margin: 0;
             padding: 0;
-        }
-        body {
             font-family: Arial, sans-serif;
-            margin: 20px;
+            background-color: #f9f9f9;
         }
+
+        h1 {
+            font-size: 24px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        /* Container für Editor und Vorschau */
         #container {
             display: flex;
             justify-content: space-between;
-            height: 100%;
+            height: calc(100% - 120px); /* Platz für die Buttons am unteren Rand */
+            padding: 10px;
         }
+
+        /* Editorbereich */
         pre {
             width: 45%;
-            height: 100%;  /* Maximiert die Höhe */
+            height: 100%;
             margin-right: 10px;
             padding: 10px;
             font-family: monospace;
             font-size: 14px;
-            background: #f5f5f5;
+            background: #ffffff;
+            color: #333;
             overflow: auto;
             box-sizing: border-box;
+            border: 1px solid #ddd;
         }
+
         pre[contenteditable="true"]:focus {
             outline: none;
         }
+
+        /* Vorschau */
         iframe {
             width: 50%;
-            height: 100%;  /* Maximiert die Höhe */
+            height: 100%;
             border: 1px solid #ccc;
+            background-color: #ffffff;
         }
-        button, input[type="color"] {
-            margin: 5px;
-            padding: 10px 15px;
-            font-size: 16px;
-            cursor: pointer;
-        }
+
+        /* Schaltflächen oben */
         #controls {
-            margin-bottom: 10px;
+            margin-bottom: 20px;
+            text-align: center;
         }
-        .mobile-view {
-            width: 375px;  /* iPhone Breite */
-            height: 667px; /* iPhone Höhe */
-            border: 1px solid #000;
+
+        button {
+            padding: 10px 20px;
+            font-size: 14px;
+            margin: 5px;
+            border: none;
+            background-color: #007bff;
+            color: white;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        /* Fixiere die Buttons am unteren Rand */
+        #action-buttons {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background-color: #ffffff;
+            border-top: 1px solid #ddd;
+            padding: 10px 0;
+            text-align: center;
+        }
+
+        /* Entferne unerwünschte Umrandungen */
+        *:focus {
+            outline: none !important;
         }
     </style>
 </head>
 <body>
 
-    <h1>HTML Signature Editor</h1>
+    <h1>HTML Signature Editor <span class="version">v1.2</span></h1>
 
     <!-- Styling Controls -->
     <div id="controls">
@@ -80,11 +120,14 @@
         <iframe id="preview"></iframe>
     </div>
 
-    <!-- Buttons für Copy, Validierung und mobile Vorschau -->
-    <button onclick="copyToClipboard()">Code kopieren</button>
-    <button onclick="validateHTML()">HTML validieren</button>
-    <button onclick="toggleMobileView()">Mobile Vorschau umschalten</button>
+    <!-- Fixierte Buttons am unteren Rand -->
+    <div id="action-buttons">
+        <button onclick="copyToClipboard()">Code kopieren</button>
+        <button onclick="validateHTML()">HTML validieren</button>
+        <button onclick="toggleMobileView()">Mobile Vorschau umschalten</button>
+    </div>
 
+    <!-- Prism.js und JavaScript-Funktionen -->
     <script>
         // Funktion für Live-Vorschau
         function updatePreview() {
@@ -103,7 +146,7 @@
 
         // Funktion zum Kopieren des HTML-Codes in die Zwischenablage
         function copyToClipboard() {
-            const htmlCode = document.getElementById("htmlInput").innerHTML; // Verwendung von innerHTML
+            const htmlCode = document.getElementById("htmlInput").innerHTML;
             navigator.clipboard.writeText(htmlCode).then(function() {
                 alert("HTML-Code in die Zwischenablage kopiert!");
             }, function(err) {
