@@ -3,33 +3,35 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HTML Signature Editor v1.2</title>
+    <title>HTML Signature Editor v1.3</title>
 
     <!-- Prism.js für Syntax Highlighting -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.23.0/themes/prism.min.css" rel="stylesheet" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.23.0/prism.min.js"></script>
 
     <style>
-        /* Allgemeine Stile */
+        /* Allgemeine Stile basierend auf macOS */
         html, body {
             height: 100%;
             margin: 0;
             padding: 0;
-            font-family: Arial, sans-serif;
-            background-color: #f9f9f9;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: #f0f0f5;
+            color: #333;
         }
 
         h1 {
             font-size: 24px;
             margin-bottom: 20px;
             text-align: center;
+            color: #4a4a4a;
         }
 
         /* Container für Editor und Vorschau */
         #container {
             display: flex;
             justify-content: space-between;
-            height: calc(100% - 120px); /* Platz für die Buttons am unteren Rand */
+            height: calc(100% - 150px); /* Platz für die Buttons am unteren Rand */
             padding: 10px;
         }
 
@@ -45,7 +47,8 @@
             color: #333;
             overflow: auto;
             box-sizing: border-box;
-            border: 1px solid #ddd;
+            border: 1px solid #ccc;
+            border-radius: 8px;
         }
 
         pre[contenteditable="true"]:focus {
@@ -58,6 +61,7 @@
             height: 100%;
             border: 1px solid #ccc;
             background-color: #ffffff;
+            border-radius: 8px;
         }
 
         /* Schaltflächen oben */
@@ -71,14 +75,32 @@
             font-size: 14px;
             margin: 5px;
             border: none;
-            background-color: #007bff;
+            background-color: #007aff;
             color: white;
             cursor: pointer;
-            border-radius: 4px;
+            border-radius: 6px;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+            transition: background-color 0.3s ease;
         }
 
         button:hover {
-            background-color: #0056b3;
+            background-color: #005bb5;
+        }
+
+        /* macOS-ähnliche Buttons zur Textgröße */
+        .text-size-button {
+            font-size: 20px;
+            padding: 5px 10px;
+            background-color: #ffffff;
+            color: #333;
+            border: 1px solid #ccc;
+            border-radius: 50%;
+            cursor: pointer;
+            margin: 0 5px;
+        }
+
+        .text-size-button:hover {
+            background-color: #f0f0f0;
         }
 
         /* Fixiere die Buttons am unteren Rand */
@@ -91,6 +113,7 @@
             border-top: 1px solid #ddd;
             padding: 10px 0;
             text-align: center;
+            box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
         }
 
         /* Entferne unerwünschte Umrandungen */
@@ -101,7 +124,7 @@
 </head>
 <body>
 
-    <h1>HTML Signature Editor <span class="version">v1.2</span></h1>
+    <h1>HTML Signature Editor <span class="version">v1.3</span></h1>
 
     <!-- Styling Controls -->
     <div id="controls">
@@ -112,6 +135,10 @@
         <label for="textColor">Textfarbe</label>
         <input type="color" id="bgColor" value="#ffffff" onchange="changeBgColor()">
         <label for="bgColor">Hintergrundfarbe</label>
+
+        <!-- Textgröße Buttons -->
+        <span class="text-size-button" onclick="increaseFontSize()">A</span>
+        <span class="text-size-button" onclick="decreaseFontSize()">a</span>
     </div>
 
     <!-- Container für Textfeld und Vorschau -->
@@ -200,10 +227,31 @@
             }
         }
 
+        // Funktion zur Textgrößenanpassung
+        function increaseFontSize() {
+            const editor = document.getElementById("htmlInput");
+            let currentSize = parseFloat(window.getComputedStyle(editor).fontSize);
+            editor.style.fontSize = (currentSize + 2) + "px";
+        }
+
+        function decreaseFontSize() {
+            const editor = document.getElementById("htmlInput");
+            let currentSize = parseFloat(window.getComputedStyle(editor).fontSize);
+            editor.style.fontSize = (currentSize - 2) + "px";
+        }
+
         // Funktion zur Umschaltung der mobilen Vorschau
         function toggleMobileView() {
             const previewFrame = document.getElementById("preview");
             const isMobile = previewFrame.classList.toggle("mobile-view");
+            const preview = previewFrame.contentDocument || previewFrame.contentWindow.document;
+            if (isMobile) {
+                previewFrame.style.width = "375px";
+                previewFrame.style.height = "667px";
+            } else {
+                previewFrame.style.width = "100%";
+                previewFrame.style.height = "100%";
+            }
         }
 
     </script>
