@@ -78,4 +78,83 @@
     <script>
         // Funktion für Live-Vorschau
         function updatePreview() {
-            const htmlCode = document.getElementBy
+            const htmlCode = document.getElementById("htmlInput").innerHTML; // Verwendung von innerHTML
+            const previewFrame = document.getElementById("preview");
+            const preview = previewFrame.contentDocument || previewFrame.contentWindow.document;
+            preview.open();
+            preview.write(htmlCode);
+            preview.close();
+
+            // Syntax Highlighting neu anwenden
+            Prism.highlightAll();
+        }
+
+        document.getElementById("htmlInput").addEventListener("input", updatePreview);
+
+        // Funktion zum Kopieren des HTML-Codes in die Zwischenablage
+        function copyToClipboard() {
+            const htmlCode = document.getElementById("htmlInput").innerHTML; // Verwendung von innerHTML
+            navigator.clipboard.writeText(htmlCode).then(function() {
+                alert("HTML-Code in die Zwischenablage kopiert!");
+            }, function(err) {
+                alert("Fehler beim Kopieren: " + err);
+            });
+        }
+
+        // Funktion zum Einfügen von HTML-Tags
+        function wrapText(tag) {
+            const textarea = document.getElementById("htmlInput");
+            const start = window.getSelection().anchorOffset;
+            const end = window.getSelection().focusOffset;
+            const text = textarea.innerText.substring(start, end);
+            const before = textarea.innerText.substring(0, start);
+            const after = textarea.innerText.substring(end);
+            textarea.innerHTML = before + `<${tag}>` + text + `</${tag}>` + after;
+            updatePreview();
+        }
+
+        // Funktion zum Hinzufügen eines Links
+        function addLink() {
+            const url = prompt("Gib die URL ein:");
+            if (url) {
+                wrapText(`a href="${url}"`);
+            }
+        }
+
+        // Funktion zur Änderung der Textfarbe
+        function changeTextColor() {
+            const color = document.getElementById("textColor").value;
+            wrapText(`span style="color:${color}"`);
+        }
+
+        // Funktion zur Änderung der Hintergrundfarbe
+        function changeBgColor() {
+            const color = document.getElementById("bgColor").value;
+            wrapText(`span style="background-color:${color}"`);
+        }
+
+        // Funktion zur Validierung des HTML-Codes
+        function validateHTML() {
+            const htmlCode = document.getElementById("htmlInput").innerHTML;
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(htmlCode, 'text/html');
+            const errors = doc.getElementsByTagName('parsererror');
+
+            if (errors.length > 0) {
+                alert("Fehler im HTML: " + errors[0].textContent);
+            } else {
+                alert("HTML ist gültig!");
+            }
+        }
+
+        // Funktion zur Umschaltung der mobilen Vorschau
+        function toggleMobileView() {
+            const previewFrame = document.getElementById("preview");
+            const isMobile = previewFrame.classList.toggle("mobile-view");
+        }
+
+    </script>
+
+</body>
+</html>
+
