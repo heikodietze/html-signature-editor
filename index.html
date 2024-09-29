@@ -9,28 +9,46 @@
             font-family: Arial, sans-serif;
             margin: 20px;
         }
+        #container {
+            display: flex;
+            justify-content: space-between;
+        }
         textarea {
-            width: 100%;
-            height: 200px;
-            margin-bottom: 20px;
+            width: 45%;
+            height: 400px;
+            margin-right: 10px;
+            padding: 10px;
+            font-family: monospace;
+            font-size: 14px;
         }
         iframe {
-            width: 100%;
-            height: 300px;
+            width: 50%;
+            height: 400px;
             border: 1px solid #ccc;
+        }
+        button {
+            margin-top: 20px;
+            padding: 10px 15px;
+            font-size: 16px;
+            cursor: pointer;
         }
     </style>
 </head>
 <body>
 
     <h1>HTML Signature Editor</h1>
-    <textarea id="htmlInput"></textarea>
-    <button onclick="updatePreview()">Vorschau aktualisieren</button>
+    
+    <!-- Container für Textfeld und Vorschau nebeneinander -->
+    <div id="container">
+        <textarea id="htmlInput" placeholder="Gib hier deinen HTML-Code ein..."></textarea>
+        <iframe id="preview"></iframe>
+    </div>
 
-    <h2>Live Vorschau</h2>
-    <iframe id="preview"></iframe>
+    <!-- Buttons für Copy und Vorschau -->
+    <button onclick="copyToClipboard()">Code kopieren</button>
 
     <script>
+        // Funktion für Live-Vorschau
         function updatePreview() {
             const htmlCode = document.getElementById("htmlInput").value;
             const previewFrame = document.getElementById("preview");
@@ -39,6 +57,20 @@
             preview.write(htmlCode);
             preview.close();
         }
+
+        // Live-Vorschau bei jeder Änderung im Textbereich aktualisieren
+        document.getElementById("htmlInput").addEventListener("input", updatePreview);
+
+        // Funktion zum Kopieren des HTML-Codes in die Zwischenablage
+        function copyToClipboard() {
+            const htmlCode = document.getElementById("htmlInput").value;
+            navigator.clipboard.writeText(htmlCode).then(function() {
+                alert("HTML-Code in die Zwischenablage kopiert!");
+            }, function(err) {
+                alert("Fehler beim Kopieren: " + err);
+            });
+        }
     </script>
+
 </body>
 </html>
