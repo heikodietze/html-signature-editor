@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HTML Signature Editor v1.6</title>
+    <title>HTML Signature Editor v1.8</title>
 
     <!-- Tailwind CSS via CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -31,7 +31,7 @@
 <body class="bg-gray-100 font-sans leading-normal tracking-normal">
 
     <header class="bg-white shadow p-6">
-        <h1 class="text-2xl font-semibold text-gray-800 text-center">HTML Signature Editor <span class="text-gray-500">v1.6</span></h1>
+        <h1 class="text-2xl font-semibold text-gray-800 text-center">HTML Signature Editor <span class="text-gray-500">v1.8</span></h1>
     </header>
 
     <!-- Styling Controls -->
@@ -74,7 +74,20 @@
             Prism.highlightAll();
         }
 
-        document.getElementById("htmlInput").addEventListener("input", updatePreview);
+        // Speichern des aktuellen Zustands im Undo-Stack
+        function saveState() {
+            const currentContent = document.getElementById("htmlInput").innerText;
+            if (undoStack.length >= maxStackSize) {
+                undoStack.shift();  // Entferne den ältesten Eintrag, um Speicherplatz zu schaffen
+            }
+            undoStack.push(currentContent);
+            redoStack = [];  // Redo-Stack zurücksetzen, wenn eine neue Änderung gemacht wird
+        }
+
+        document.getElementById("htmlInput").addEventListener("input", () => {
+            saveState();  // Speichere Zustand nach jeder Eingabe
+            updatePreview();  // Vorschau aktualisieren
+        });
 
         // Funktion zum Kopieren des HTML-Codes in die Zwischenablage
         function copyToClipboard() {
@@ -135,11 +148,15 @@
         // Funktion zur Beautifizierung des HTML-Codes
         function beautifyCode() {
             const htmlInput = document.getElementById("htmlInput");
-            const formattedHTML = html_beautify(htmlInput.innerText, {
+            const originalHTML = htmlInput.innerText;
+
+            // Beautify HTML mit js-beautify
+            const formattedHTML = html_beautify(originalHTML, {
                 indent_size: 2,
-                preserve_newlines: true,
-                max_preserve_newlines: 2
+                preserve_newlines: false,
+                max_preserve_newlines: 0
             });
+
             htmlInput.innerText = formattedHTML;
             updatePreview();
         }
@@ -172,10 +189,11 @@
         document.addEventListener('mousemove', (e) => {
             if (isResizing) {
                 const containerWidth = document.getElementById('container').offsetWidth;
-                const leftWidth = (e.pageX - containerWidth * 0.05) / containerWidth * 100; // Adjusting boundaries
+                const leftWidth = (e.pageX / containerWidth) * 100;
                 const rightWidth = 100 - leftWidth;
 
-                if (leftWidth >= 10 && rightWidth >= 10) {  // Ensure minimum widths
+                // Update both panel sizes only if within boundaries
+                if (leftWidth >= 10 && rightWidth >= 10) {
                     leftPanel.style.width = `${leftWidth}%`;
                     rightPanel.style.width = `${rightWidth}%`;
                 }
