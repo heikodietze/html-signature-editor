@@ -4,6 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>HTML Signature Editor</title>
+
+    <!-- Prism.js für Syntax Highlighting -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.23.0/themes/prism.min.css" rel="stylesheet" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.23.0/prism.min.js"></script>
+
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -26,26 +31,47 @@
             height: 400px;
             border: 1px solid #ccc;
         }
-        button {
-            margin-top: 20px;
+        button, input[type="color"] {
+            margin: 5px;
             padding: 10px 15px;
             font-size: 16px;
             cursor: pointer;
+        }
+        #controls {
+            margin-bottom: 10px;
+        }
+        .mobile-view {
+            width: 375px;  /* iPhone Breite */
+            height: 667px; /* iPhone Höhe */
+            border: 1px solid #000;
         }
     </style>
 </head>
 <body>
 
     <h1>HTML Signature Editor</h1>
-    
-    <!-- Container für Textfeld und Vorschau nebeneinander -->
+
+    <!-- Styling Controls -->
+    <div id="controls">
+        <button onclick="wrapText('b')">Fett</button>
+        <button onclick="wrapText('i')">Kursiv</button>
+        <button onclick="addLink()">Link</button>
+        <input type="color" id="textColor" value="#000000" onchange="changeTextColor()">
+        <label for="textColor">Textfarbe</label>
+        <input type="color" id="bgColor" value="#ffffff" onchange="changeBgColor()">
+        <label for="bgColor">Hintergrundfarbe</label>
+    </div>
+
+    <!-- Container für Textfeld und Vorschau -->
     <div id="container">
         <textarea id="htmlInput" placeholder="Gib hier deinen HTML-Code ein..."></textarea>
         <iframe id="preview"></iframe>
     </div>
 
-    <!-- Buttons für Copy und Vorschau -->
+    <!-- Buttons für Copy, Validierung und mobile Vorschau -->
     <button onclick="copyToClipboard()">Code kopieren</button>
+    <button onclick="validateHTML()">HTML validieren</button>
+    <button onclick="toggleMobileView()">Mobile Vorschau umschalten</button>
 
     <script>
         // Funktion für Live-Vorschau
@@ -58,7 +84,6 @@
             preview.close();
         }
 
-        // Live-Vorschau bei jeder Änderung im Textbereich aktualisieren
         document.getElementById("htmlInput").addEventListener("input", updatePreview);
 
         // Funktion zum Kopieren des HTML-Codes in die Zwischenablage
@@ -70,6 +95,59 @@
                 alert("Fehler beim Kopieren: " + err);
             });
         }
+
+        // Funktion zum Einfügen von HTML-Tags
+        function wrapText(tag) {
+            const textarea = document.getElementById("htmlInput");
+            const start = textarea.selectionStart;
+            const end = textarea.selectionEnd;
+            const text = textarea.value.substring(start, end);
+            const before = textarea.value.substring(0, start);
+            const after = textarea.value.substring(end);
+            textarea.value = before + `<${tag}>` + text + `</${tag}>` + after;
+            updatePreview();
+        }
+
+        // Funktion zum Hinzufügen eines Links
+        function addLink() {
+            const url = prompt("Gib die URL ein:");
+            if (url) {
+                wrapText(`a href="${url}"`);
+            }
+        }
+
+        // Funktion zur Änderung der Textfarbe
+        function changeTextColor() {
+            const color = document.getElementById("textColor").value;
+            wrapText(`span style="color:${color}"`);
+        }
+
+        // Funktion zur Änderung der Hintergrundfarbe
+        function changeBgColor() {
+            const color = document.getElementById("bgColor").value;
+            wrapText(`span style="background-color:${color}"`);
+        }
+
+        // Funktion zur Validierung des HTML-Codes
+        function validateHTML() {
+            const htmlCode = document.getElementById("htmlInput").value;
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(htmlCode, 'text/html');
+            const errors = doc.getElementsByTagName('parsererror');
+
+            if (errors.length > 0) {
+                alert("Fehler im HTML: " + errors[0].textContent);
+            } else {
+                alert("HTML ist gültig!");
+            }
+        }
+
+        // Funktion zur Umschaltung der mobilen Vorschau
+        function toggleMobileView() {
+            const previewFrame = document.getElementById("preview");
+            const isMobile = previewFrame.classList.toggle("mobile-view");
+        }
+
     </script>
 
 </body>
