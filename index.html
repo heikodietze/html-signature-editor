@@ -3,12 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HTML Signature Editor v1.5</title>
+    <title>HTML Signature Editor v1.6</title>
 
     <!-- Tailwind CSS via CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.23.0/themes/prism.min.css" rel="stylesheet" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.23.0/prism.min.js"></script>
+    <!-- js-beautify for beautifying HTML -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.14.0/beautify-html.min.js"></script>
 
     <style>
         /* Griffleiste für Größenänderung */
@@ -29,7 +31,7 @@
 <body class="bg-gray-100 font-sans leading-normal tracking-normal">
 
     <header class="bg-white shadow p-6">
-        <h1 class="text-2xl font-semibold text-gray-800 text-center">HTML Signature Editor <span class="text-gray-500">v1.5</span></h1>
+        <h1 class="text-2xl font-semibold text-gray-800 text-center">HTML Signature Editor <span class="text-gray-500">v1.6</span></h1>
     </header>
 
     <!-- Styling Controls -->
@@ -37,6 +39,7 @@
         <button class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-500" onclick="wrapText('b')">Fett</button>
         <button class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-500" onclick="wrapText('i')">Kursiv</button>
         <button class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-500" onclick="addLink()">Link</button>
+        <button class="px-4 py-2 bg-purple-600 text-white rounded hover:bg-purple-500" onclick="beautifyCode()">Beautify</button>
         <input type="color" id="textColor" class="px-2 py-2 border border-gray-300 rounded" value="#000000" onchange="changeTextColor()">
         <label for="textColor" class="text-gray-700">Textfarbe</label>
         <input type="color" id="bgColor" class="px-2 py-2 border border-gray-300 rounded" value="#ffffff" onchange="changeBgColor()">
@@ -129,6 +132,18 @@
             }
         }
 
+        // Funktion zur Beautifizierung des HTML-Codes
+        function beautifyCode() {
+            const htmlInput = document.getElementById("htmlInput");
+            const formattedHTML = html_beautify(htmlInput.innerText, {
+                indent_size: 2,
+                preserve_newlines: true,
+                max_preserve_newlines: 2
+            });
+            htmlInput.innerText = formattedHTML;
+            updatePreview();
+        }
+
         // Funktion zur Umschaltung der mobilen Vorschau
         function toggleMobileView() {
             const previewFrame = document.getElementById("preview");
@@ -157,9 +172,13 @@
         document.addEventListener('mousemove', (e) => {
             if (isResizing) {
                 const containerWidth = document.getElementById('container').offsetWidth;
-                const leftWidth = e.pageX / containerWidth * 100;
-                leftPanel.style.width = `${leftWidth}%`;
-                rightPanel.style.width = `${100 - leftWidth}%`;
+                const leftWidth = (e.pageX - containerWidth * 0.05) / containerWidth * 100; // Adjusting boundaries
+                const rightWidth = 100 - leftWidth;
+
+                if (leftWidth >= 10 && rightWidth >= 10) {  // Ensure minimum widths
+                    leftPanel.style.width = `${leftWidth}%`;
+                    rightPanel.style.width = `${rightWidth}%`;
+                }
             }
         });
 
