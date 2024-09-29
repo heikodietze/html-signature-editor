@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HTML Signature Editor v1.8</title>
+    <title>HTML Signature Editor v1.9</title>
 
     <!-- Tailwind CSS via CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -31,7 +31,7 @@
 <body class="bg-gray-100 font-sans leading-normal tracking-normal">
 
     <header class="bg-white shadow p-6">
-        <h1 class="text-2xl font-semibold text-gray-800 text-center">HTML Signature Editor <span class="text-gray-500">v1.8</span></h1>
+        <h1 class="text-2xl font-semibold text-gray-800 text-center">HTML Signature Editor <span class="text-gray-500">v1.9</span></h1>
     </header>
 
     <!-- Styling Controls -->
@@ -40,6 +40,9 @@
         <button class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-500" onclick="wrapText('i')">Kursiv</button>
         <button class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-500" onclick="addLink()">Link</button>
         <button class="px-4 py-2 bg-purple-600 text-white rounded hover:bg-purple-500" onclick="beautifyCode()">Beautify</button>
+        <button class="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-500" onclick="undo()">Undo</button>
+        <button class="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-500" onclick="redo()">Redo</button>
+        <button class="px-4 py-2 bg-orange-600 text-white rounded hover:bg-orange-500" onclick="resetPanels()">Reset Panels</button>
         <input type="color" id="textColor" class="px-2 py-2 border border-gray-300 rounded" value="#000000" onchange="changeTextColor()">
         <label for="textColor" class="text-gray-700">Textfarbe</label>
         <input type="color" id="bgColor" class="px-2 py-2 border border-gray-300 rounded" value="#ffffff" onchange="changeBgColor()">
@@ -61,6 +64,10 @@
     </div>
 
     <script>
+        let undoStack = [];
+        let redoStack = [];
+        const maxStackSize = 50;  // Maximal 50 Aktionen speichern
+
         // Funktion für Live-Vorschau
         function updatePreview() {
             const htmlCode = document.getElementById("htmlInput").innerText;  // Sicherstellen, dass HTML-Code korrekt gerendert wird
@@ -82,6 +89,28 @@
             }
             undoStack.push(currentContent);
             redoStack = [];  // Redo-Stack zurücksetzen, wenn eine neue Änderung gemacht wird
+        }
+
+        // Undo-Funktion
+        function undo() {
+            if (undoStack.length > 0) {
+                const currentContent = document.getElementById("htmlInput").innerText;
+                redoStack.push(currentContent);  // Aktuellen Zustand im Redo-Stack speichern
+                const previousContent = undoStack.pop();  // Letzte Aktion aus dem Undo-Stack
+                document.getElementById("htmlInput").innerText = previousContent;
+                updatePreview();  // Vorschau aktualisieren
+            }
+        }
+
+        // Redo-Funktion
+        function redo() {
+            if (redoStack.length > 0) {
+                const currentContent = document.getElementById("htmlInput").innerText;
+                undoStack.push(currentContent);  // Aktuellen Zustand im Undo-Stack speichern
+                const nextContent = redoStack.pop();  // Nächste Aktion aus dem Redo-Stack
+                document.getElementById("htmlInput").innerText = nextContent;
+                updatePreview();  // Vorschau aktualisieren
+            }
         }
 
         document.getElementById("htmlInput").addEventListener("input", () => {
@@ -204,6 +233,12 @@
             isResizing = false;
             document.body.style.cursor = 'default';
         });
+
+        // Funktion zum Zurücksetzen der Fenster auf die Standardgröße
+        function resetPanels() {
+            leftPanel.style.width = "50%";
+            rightPanel.style.width = "50%";
+        }
 
     </script>
 
