@@ -3,117 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HTML Signature Editor v1.3</title>
+    <title>HTML Signature Editor v1.5</title>
 
-    <!-- Prism.js für Syntax Highlighting -->
+    <!-- Tailwind CSS via CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.23.0/themes/prism.min.css" rel="stylesheet" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.23.0/prism.min.js"></script>
 
     <style>
-        /* Allgemeine Stile basierend auf macOS */
-        html, body {
+        /* Griffleiste für Größenänderung */
+        #resizer {
+            width: 5px;
+            background-color: #ddd;
+            cursor: col-resize;
             height: 100%;
-            margin: 0;
-            padding: 0;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-            background-color: #f0f0f5;
-            color: #333;
-        }
-
-        h1 {
-            font-size: 24px;
-            margin-bottom: 20px;
-            text-align: center;
-            color: #4a4a4a;
-        }
-
-        /* Container für Editor und Vorschau */
-        #container {
-            display: flex;
-            justify-content: space-between;
-            height: calc(100% - 150px); /* Platz für die Buttons am unteren Rand */
-            padding: 10px;
-        }
-
-        /* Editorbereich */
-        pre {
-            width: 45%;
-            height: 100%;
-            margin-right: 10px;
-            padding: 10px;
-            font-family: monospace;
-            font-size: 14px;
-            background: #ffffff;
-            color: #333;
-            overflow: auto;
-            box-sizing: border-box;
-            border: 1px solid #ccc;
-            border-radius: 8px;
-        }
-
-        pre[contenteditable="true"]:focus {
-            outline: none;
-        }
-
-        /* Vorschau */
-        iframe {
-            width: 50%;
-            height: 100%;
-            border: 1px solid #ccc;
-            background-color: #ffffff;
-            border-radius: 8px;
-        }
-
-        /* Schaltflächen oben */
-        #controls {
-            margin-bottom: 20px;
-            text-align: center;
-        }
-
-        button {
-            padding: 10px 20px;
-            font-size: 14px;
-            margin: 5px;
-            border: none;
-            background-color: #007aff;
-            color: white;
-            cursor: pointer;
-            border-radius: 6px;
-            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
-            transition: background-color 0.3s ease;
-        }
-
-        button:hover {
-            background-color: #005bb5;
-        }
-
-        /* macOS-ähnliche Buttons zur Textgröße */
-        .text-size-button {
-            font-size: 20px;
-            padding: 5px 10px;
-            background-color: #ffffff;
-            color: #333;
-            border: 1px solid #ccc;
-            border-radius: 50%;
-            cursor: pointer;
-            margin: 0 5px;
-        }
-
-        .text-size-button:hover {
-            background-color: #f0f0f0;
-        }
-
-        /* Fixiere die Buttons am unteren Rand */
-        #action-buttons {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            background-color: #ffffff;
-            border-top: 1px solid #ddd;
-            padding: 10px 0;
-            text-align: center;
-            box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
+            position: relative;
         }
 
         /* Entferne unerwünschte Umrandungen */
@@ -122,39 +26,37 @@
         }
     </style>
 </head>
-<body>
+<body class="bg-gray-100 font-sans leading-normal tracking-normal">
 
-    <h1>HTML Signature Editor <span class="version">v1.3</span></h1>
+    <header class="bg-white shadow p-6">
+        <h1 class="text-2xl font-semibold text-gray-800 text-center">HTML Signature Editor <span class="text-gray-500">v1.5</span></h1>
+    </header>
 
     <!-- Styling Controls -->
-    <div id="controls">
-        <button onclick="wrapText('b')">Fett</button>
-        <button onclick="wrapText('i')">Kursiv</button>
-        <button onclick="addLink()">Link</button>
-        <input type="color" id="textColor" value="#000000" onchange="changeTextColor()">
-        <label for="textColor">Textfarbe</label>
-        <input type="color" id="bgColor" value="#ffffff" onchange="changeBgColor()">
-        <label for="bgColor">Hintergrundfarbe</label>
-
-        <!-- Textgröße Buttons -->
-        <span class="text-size-button" onclick="increaseFontSize()">A</span>
-        <span class="text-size-button" onclick="decreaseFontSize()">a</span>
+    <div id="controls" class="flex justify-center space-x-4 my-6">
+        <button class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-500" onclick="wrapText('b')">Fett</button>
+        <button class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-500" onclick="wrapText('i')">Kursiv</button>
+        <button class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-500" onclick="addLink()">Link</button>
+        <input type="color" id="textColor" class="px-2 py-2 border border-gray-300 rounded" value="#000000" onchange="changeTextColor()">
+        <label for="textColor" class="text-gray-700">Textfarbe</label>
+        <input type="color" id="bgColor" class="px-2 py-2 border border-gray-300 rounded" value="#ffffff" onchange="changeBgColor()">
+        <label for="bgColor" class="text-gray-700">Hintergrundfarbe</label>
     </div>
 
-    <!-- Container für Textfeld und Vorschau -->
-    <div id="container">
-        <pre><code id="htmlInput" class="language-html" contenteditable="true" style="white-space: pre-wrap;"></code></pre>
-        <iframe id="preview"></iframe>
+    <!-- Container für Textfeld, Vorschau und Griffleiste -->
+    <div id="container" class="flex h-[calc(100vh-200px)] px-6">
+        <pre class="w-1/2 bg-white border border-gray-300 p-4 rounded-lg shadow-sm overflow-auto"><code id="htmlInput" class="language-html" contenteditable="true" style="white-space: pre-wrap;"></code></pre>
+        <div id="resizer"></div>
+        <iframe id="preview" class="w-1/2 bg-white border border-gray-300 rounded-lg shadow-sm"></iframe>
     </div>
 
     <!-- Fixierte Buttons am unteren Rand -->
-    <div id="action-buttons">
-        <button onclick="copyToClipboard()">Code kopieren</button>
-        <button onclick="validateHTML()">HTML validieren</button>
-        <button onclick="toggleMobileView()">Mobile Vorschau umschalten</button>
+    <div id="action-buttons" class="fixed bottom-0 w-full bg-white shadow p-4 text-center space-x-4">
+        <button class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-500" onclick="copyToClipboard()">Code kopieren</button>
+        <button class="px-4 py-2 bg-yellow-600 text-white rounded hover:bg-yellow-500" onclick="validateHTML()">HTML validieren</button>
+        <button class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-500" onclick="toggleMobileView()">Mobile Vorschau umschalten</button>
     </div>
 
-    <!-- Prism.js und JavaScript-Funktionen -->
     <script>
         // Funktion für Live-Vorschau
         function updatePreview() {
@@ -227,19 +129,6 @@
             }
         }
 
-        // Funktion zur Textgrößenanpassung
-        function increaseFontSize() {
-            const editor = document.getElementById("htmlInput");
-            let currentSize = parseFloat(window.getComputedStyle(editor).fontSize);
-            editor.style.fontSize = (currentSize + 2) + "px";
-        }
-
-        function decreaseFontSize() {
-            const editor = document.getElementById("htmlInput");
-            let currentSize = parseFloat(window.getComputedStyle(editor).fontSize);
-            editor.style.fontSize = (currentSize - 2) + "px";
-        }
-
         // Funktion zur Umschaltung der mobilen Vorschau
         function toggleMobileView() {
             const previewFrame = document.getElementById("preview");
@@ -253,6 +142,31 @@
                 previewFrame.style.height = "100%";
             }
         }
+
+        // Funktion zur Größenänderung der Fenster mit Griffleiste
+        const resizer = document.getElementById('resizer');
+        const leftPanel = document.querySelector('pre');
+        const rightPanel = document.getElementById('preview');
+        let isResizing = false;
+
+        resizer.addEventListener('mousedown', (e) => {
+            isResizing = true;
+            document.body.style.cursor = 'col-resize';
+        });
+
+        document.addEventListener('mousemove', (e) => {
+            if (isResizing) {
+                const containerWidth = document.getElementById('container').offsetWidth;
+                const leftWidth = e.pageX / containerWidth * 100;
+                leftPanel.style.width = `${leftWidth}%`;
+                rightPanel.style.width = `${100 - leftWidth}%`;
+            }
+        });
+
+        document.addEventListener('mouseup', () => {
+            isResizing = false;
+            document.body.style.cursor = 'default';
+        });
 
     </script>
 
