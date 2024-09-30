@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HTML Signature Editor v2.3</title>
+    <title>HTML Signature Editor v2.4</title>
 
     <!-- Tailwind CSS via CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -31,7 +31,7 @@
 <body class="bg-gray-100 font-sans leading-normal tracking-normal">
 
     <header class="bg-white shadow p-6">
-        <h1 class="text-2xl font-semibold text-gray-800 text-center">HTML Signature Editor <span class="text-gray-500">v2.3</span></h1>
+        <h1 class="text-2xl font-semibold text-gray-800 text-center">HTML Signature Editor <span class="text-gray-500">v2.4</span></h1>
     </header>
 
     <!-- Styling Controls -->
@@ -66,9 +66,10 @@
     <script>
         let undoStack = [];
         let redoStack = [];
+        let timeout;
         const maxStackSize = 50;  // Maximal 50 Aktionen speichern
 
-        // Funktion für Live-Vorschau
+        // Funktion für Live-Vorschau (nach Benutzeraktion)
         function updatePreview() {
             const htmlCode = document.getElementById("htmlInput").innerText;  // Verwende innerText, um den reinen Text zu erhalten
             const previewFrame = document.getElementById("preview");
@@ -113,10 +114,11 @@
             }
         }
 
+        // Vorschau nur nach einer Pause aktualisieren (z. B. 500ms nach Eingabe)
         document.getElementById("htmlInput").addEventListener("input", () => {
-            // Vorschau nur aktualisieren, Editor nicht überschreiben
             saveState();  // Speichere Zustand nach jeder Eingabe
-            updatePreview();  // Vorschau aktualisieren
+            clearTimeout(timeout);
+            timeout = setTimeout(updatePreview, 500);  // Aktualisiere die Vorschau nur nach 500ms Inaktivität
         });
 
         // Funktion zum Kopieren des HTML-Codes in die Zwischenablage
