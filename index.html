@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HTML Signature Editor v2.01</title>
+    <title>HTML Signature Editor v2.1</title>
 
     <!-- Tailwind CSS via CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -31,7 +31,7 @@
 <body class="bg-gray-100 font-sans leading-normal tracking-normal">
 
     <header class="bg-white shadow p-6">
-        <h1 class="text-2xl font-semibold text-gray-800 text-center">HTML Signature Editor <span class="text-gray-500">v2.01</span></h1>
+        <h1 class="text-2xl font-semibold text-gray-800 text-center">HTML Signature Editor <span class="text-gray-500">v2.1</span></h1>
     </header>
 
     <!-- Styling Controls -->
@@ -70,7 +70,7 @@
 
         // Funktion für Live-Vorschau
         function updatePreview() {
-            const htmlCode = document.getElementById("htmlInput").innerText;  // Verwende innerText statt textContent für bessere Cursor-Position
+            const htmlCode = document.getElementById("htmlInput").textContent;  // Verwende textContent für Beautify und Vorschau
             const previewFrame = document.getElementById("preview");
             const preview = previewFrame.contentDocument || previewFrame.contentWindow.document;
             preview.open();
@@ -81,9 +81,29 @@
             Prism.highlightAll();
         }
 
+        // Cursor-Position speichern
+        function getCaretPosition() {
+            const selection = window.getSelection();
+            return {
+                start: selection.anchorOffset,
+                end: selection.focusOffset,
+            };
+        }
+
+        // Cursor-Position wiederherstellen
+        function setCaretPosition(start, end) {
+            const range = document.createRange();
+            const selection = window.getSelection();
+            const node = document.getElementById("htmlInput").firstChild;
+            range.setStart(node, start);
+            range.setEnd(node, end);
+            selection.removeAllRanges();
+            selection.addRange(range);
+        }
+
         // Speichern des aktuellen Zustands im Undo-Stack
         function saveState() {
-            const currentContent = document.getElementById("htmlInput").innerText;
+            const currentContent = document.getElementById("htmlInput").textContent;
             if (undoStack.length >= maxStackSize) {
                 undoStack.shift();  // Entferne den ältesten Eintrag, um Speicherplatz zu schaffen
             }
@@ -94,10 +114,10 @@
         // Undo-Funktion
         function undo() {
             if (undoStack.length > 0) {
-                const currentContent = document.getElementById("htmlInput").innerText;
+                const currentContent = document.getElementById("htmlInput").textContent;
                 redoStack.push(currentContent);  // Aktuellen Zustand im Redo-Stack speichern
                 const previousContent = undoStack.pop();  // Letzte Aktion aus dem Undo-Stack
-                document.getElementById("htmlInput").innerText = previousContent;
+                document.getElementById("htmlInput").textContent = previousContent;
                 updatePreview();  // Vorschau aktualisieren
             }
         }
@@ -105,22 +125,24 @@
         // Redo-Funktion
         function redo() {
             if (redoStack.length > 0) {
-                const currentContent = document.getElementById("htmlInput").innerText;
+                const currentContent = document.getElementById("htmlInput").textContent;
                 undoStack.push(currentContent);  // Aktuellen Zustand im Undo-Stack speichern
                 const nextContent = redoStack.pop();  // Nächste Aktion aus dem Redo-Stack
-                document.getElementById("htmlInput").innerText = nextContent;
+                document.getElementById("htmlInput").textContent = nextContent;
                 updatePreview();  // Vorschau aktualisieren
             }
         }
 
         document.getElementById("htmlInput").addEventListener("input", () => {
+            const caretPos = getCaretPosition();  // Cursor-Position speichern
             saveState();  // Speichere Zustand nach jeder Eingabe
             updatePreview();  // Vorschau aktualisieren
+            setCaretPosition(caretPos.start, caretPos.end);  // Cursor-Position wiederherstellen
         });
 
         // Funktion zum Kopieren des HTML-Codes in die Zwischenablage
         function copyToClipboard() {
-            const htmlCode = document.getElementById("htmlInput").innerText;
+            const htmlCode = document.getElementById("htmlInput").textContent;
             navigator.clipboard.writeText(htmlCode).then(function() {
                 alert("HTML-Code in die Zwischenablage kopiert!");
             }, function(err) {
@@ -133,10 +155,10 @@
             const textarea = document.getElementById("htmlInput");
             const start = window.getSelection().anchorOffset;
             const end = window.getSelection().focusOffset;
-            const text = textarea.innerText.substring(start, end);
-            const before = textarea.innerText.substring(0, start);
-            const after = textarea.innerText.substring(end);
-            textarea.innerText = before + `<${tag}>` + text + `</${tag}>` + after;
+            const text = textarea.textContent.substring(start, end);
+            const before = textarea.textContent.substring(0, start);
+            const after = textarea.textContent.substring(end);
+            textarea.textContent = before + `<${tag}>` + text + `</${tag}>` + after;
             updatePreview();
         }
 
@@ -162,7 +184,7 @@
 
         // Funktion zur Validierung des HTML-Codes
         function validateHTML() {
-            const htmlCode = document.getElementById("htmlInput").innerText;
+            const htmlCode = document.getElementById("htmlInput").textContent;
             const parser = new DOMParser();
             const doc = parser.parseFromString(htmlCode, 'text/html');
             const errors = doc.getElementsByTagName('parsererror');
@@ -177,7 +199,7 @@
         // Funktion zur Beautifizierung des HTML-Codes
         function beautifyCode() {
             const htmlInput = document.getElementById("htmlInput");
-            const originalHTML = htmlInput.innerText;
+            const originalHTML = htmlInput.textContent;
 
             // Beautify HTML mit js-beautify
             const formattedHTML = html_beautify(originalHTML, {
@@ -186,7 +208,7 @@
                 max_preserve_newlines: 0
             });
 
-            htmlInput.innerText = formattedHTML;
+            htmlInput.textContent = formattedHTML;
             updatePreview();
         }
 
