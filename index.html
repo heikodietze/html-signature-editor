@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HTML Signature Editor v2.1</title>
+    <title>HTML Signature Editor v2.2</title>
 
     <!-- Tailwind CSS via CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -31,7 +31,7 @@
 <body class="bg-gray-100 font-sans leading-normal tracking-normal">
 
     <header class="bg-white shadow p-6">
-        <h1 class="text-2xl font-semibold text-gray-800 text-center">HTML Signature Editor <span class="text-gray-500">v2.1</span></h1>
+        <h1 class="text-2xl font-semibold text-gray-800 text-center">HTML Signature Editor <span class="text-gray-500">v2.2</span></h1>
     </header>
 
     <!-- Styling Controls -->
@@ -81,26 +81,6 @@
             Prism.highlightAll();
         }
 
-        // Cursor-Position speichern
-        function getCaretPosition() {
-            const selection = window.getSelection();
-            return {
-                start: selection.anchorOffset,
-                end: selection.focusOffset,
-            };
-        }
-
-        // Cursor-Position wiederherstellen
-        function setCaretPosition(start, end) {
-            const range = document.createRange();
-            const selection = window.getSelection();
-            const node = document.getElementById("htmlInput").firstChild;
-            range.setStart(node, start);
-            range.setEnd(node, end);
-            selection.removeAllRanges();
-            selection.addRange(range);
-        }
-
         // Speichern des aktuellen Zustands im Undo-Stack
         function saveState() {
             const currentContent = document.getElementById("htmlInput").textContent;
@@ -134,10 +114,9 @@
         }
 
         document.getElementById("htmlInput").addEventListener("input", () => {
-            const caretPos = getCaretPosition();  // Cursor-Position speichern
+            // Nur die Vorschau aktualisieren, ohne den Editor neu zu schreiben
             saveState();  // Speichere Zustand nach jeder Eingabe
             updatePreview();  // Vorschau aktualisieren
-            setCaretPosition(caretPos.start, caretPos.end);  // Cursor-Position wiederherstellen
         });
 
         // Funktion zum Kopieren des HTML-Codes in die Zwischenablage
